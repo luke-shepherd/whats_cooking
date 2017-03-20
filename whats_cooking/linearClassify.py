@@ -16,25 +16,27 @@ with open('train.json') as data_file:
         
         #print(data[1]['cuisine'])
 
-        all_classes = Set()
+        all_classes = []
         all_ingredients = []
 
         for i in range(0, len(data)):
             cuisine = data[i]['cuisine']
             if cuisine not in all_classes:
-                all_classes.add(cuisine)
+                all_classes.append(cuisine)
 
             ingredients = data[i]['ingredients']
             for ingredient in ingredients:
                 if ingredient not in all_ingredients:
                     all_ingredients.append(ingredient)
         
-        
-        print 'There are ', len(all_classes), ' classes\n' 
+        all_classes = np.array(all_classes) 
+        print 'There are ', all_classes.size, ' classes\n' 
         print all_classes
 
-        print 'There are ', len(all_ingredients), ' different ingredients\n'
+        all_ingredients = np.array(all_ingredients)
+        print 'There are ', all_ingredients.size, ' different ingredients\n'
         print all_ingredients
 
 
-
+        print '\n Dims of ingredients\n'
+        print all_ingredients.shape
