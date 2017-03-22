@@ -3,7 +3,9 @@ from pprint import pprint
 from sets import Set
 import numpy as np
 
-with open('train.json') as data_file:  
+
+def parse_input(filename):
+    with open(filename) as data_file:  
 
         data = json.load(data_file)
         #print('First data point')
@@ -18,8 +20,10 @@ with open('train.json') as data_file:
 
         all_classes = []
         all_ingredients = []
-
-        for i in range(0, len(data)):
+        ing_indexes = {}
+        curr_index = 1
+        NUM_EXAMPLES = len(data)
+        for i in range(0, NUM_EXAMPLES):
             cuisine = data[i]['cuisine']
             if cuisine not in all_classes:
                 all_classes.append(cuisine)
@@ -28,15 +32,32 @@ with open('train.json') as data_file:
             for ingredient in ingredients:
                 if ingredient not in all_ingredients:
                     all_ingredients.append(ingredient)
+                    ing_indexes[ingredient] = curr_index
+                    curr_index += 1
         
-        all_classes = np.array(all_classes) 
-        print 'There are ', all_classes.size, ' classes\n' 
+        # create class column vector
+        all_classes = np.array(all_classes)
+        all_classes = np.resize(all_classes, (all_classes.size, 1))
+        print 'There are ', all_classes.shape, ' classes\n' 
         print all_classes
 
         all_ingredients = np.array(all_ingredients)
+        all_ingredients = np.resize(all_ingredients, (all_ingredients.size, 1))
         print 'There are ', all_ingredients.size, ' different ingredients\n'
         print all_ingredients
 
 
-        print '\n Dims of ingredients\n'
+        print '\n Dims of ingredients'
         print all_ingredients.shape
+
+        X = np.zeros((, all_ingredients.size))
+        
+        for training_example in data:
+            ing = training_example['cuisine']
+            for ingredient in ing:
+
+
+             
+
+(classes, X_train) = parse_input('train.json')
+
