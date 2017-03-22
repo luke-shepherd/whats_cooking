@@ -7,11 +7,14 @@ import numpy as np
 
 
 # main training method
-def train_perceptron(classes, X_train, y_train):
+def train_perceptron(classes, X_train, y_train, y_cuisine,all_classes):
+
+    # insert a bias column into training examples
+	X_train = np.insert( X_train, 0,1, 1)
 
 	# create k weight vectors, for our n features
 	# initialize first column (bias) to 1
-	W = np.zeros((classes.shape[0],y.shape[0] + 1))
+	W = np.zeros((classes.shape[0],X_train.shape[1]))
 	W[:,0] = np.ones((classes.shape[0]))
 
 	"""
@@ -27,27 +30,34 @@ def train_perceptron(classes, X_train, y_train):
 
 	for j in range(0,X_train.shape[0]):
 
-		# initalize our weight and class prediction
-		example 	= X_train[j,:]
-		y_target 	= y_train[j]
-		w_predictor = W[j,:]
-		y_hat 		= y_train[j]
-		result 		= w_predictor * np.transpose(example)
-		index 		= 0 # keep track of index of best result
+		
+		example 	= X_train[j,:] # get the jth example
+		y_target 	= y_cuisine[j] # cuisine target is jth cuisine
+		w_index 	= all_classes.index(y_target) # index of associated weight vector
+		w_predictor = W[w_index,:] # weight vector
+		result 		= np.dot(w_predictor, np.transpose(example))
+		y_hat 		= y_cuisine[j] # initialize our prediction
+		index 		= j 		   # index for wrong weights
 
-		for i in range(1 , W.shape[0]):
+
+		# loop through all weights, to find highest value one
+		for i in range(1, W.shape[0]):
+
 			# check for a better result
-			tmp_result = W[i,:] * np.transpose(example) 
-			if tmp_result > result:
-				result 		= tmp_result
+			tmp_result = np.dot(W[i,:], np.transpose(example)) 
+			if  tmp_result >= result:
+				result 		= np.dot(W[i,:], np.transpose(example)) 
 				w_predictor = W[i,:]
-				y_hat 		= y_train[i]
+				y_hat 		= y_cuisine[i]
 				index = i
 
 		# check for correction prediction
-		if y_hat != y_target:
-			W[i,:] = W[i,:] - np.transpose(example) # 
-			W[j,:] = W[j,:] + np.transpose(exmaple) # 
+		if not np.array_equiv(y_hat, y_target):
+			W[index,:] = W[index,:] - np.transpose(example) # 
+			W[w_index,:] = W[w_index,:] + np.transpose(example) # 
 
 	return W
+
+classes, ingredients, X, y, y_cuisine, all_classes = dataParser.parse_input('train.json')
+print train_perceptron(classes,X,y, y_cuisine, all_classes)
 
