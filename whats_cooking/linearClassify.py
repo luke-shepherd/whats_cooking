@@ -21,7 +21,7 @@ def parse_input(filename):
         all_classes = []
         all_ingredients = []
         ing_indexes = {}
-        curr_index = 1
+        curr_index = 0
         NUM_EXAMPLES = len(data)
         for i in range(0, NUM_EXAMPLES):
             cuisine = data[i]['cuisine']
@@ -50,12 +50,15 @@ def parse_input(filename):
         print '\n Dims of ingredients'
         print all_ingredients.shape
 
-        X = np.zeros((, all_ingredients.size))
+        NUM_ING = all_ingredients.size
+        train_rows = []
+        y_rows = []
         
         for training_example in data:
             ing = training_example['cuisine']
+            row = np.zeros((1, NUM_ING))
             for ingredient in ing:
-
+                
 
              
 
