@@ -22,6 +22,7 @@ def split_data(X,y):
 def parse_input(filename):
     with open(filename) as data_file:  
 
+        print "Load in the data..."
         data = json.load(data_file)
 
 	# data structures
@@ -31,6 +32,7 @@ def parse_input(filename):
 
 	# iterate over the cuisines
 	# add cuisine to list if not seen yet
+        print "Discover cuisines and ingredients..."
         for i in range(0, NUM_EXAMPLES):
             cuisine = data[i]['cuisine']
             if cuisine not in all_classes:
@@ -55,11 +57,14 @@ def parse_input(filename):
         NUM_ING = ingredients.size
         train_rows = []
         y_rows = []
+        y_cuisine = [] # list of cuisine for example
         
+        print "Build the example and target matrices..."
         for training_example in data:
             ing = training_example['ingredients']
             f_vec = np.zeros((1, NUM_ING))
             y_vec = np.zeros((1, classes.size))
+            y_cuisine.append(training_example['cuisine'])
 
             for ingredient in ing:
                 np.put(f_vec, all_ingredients.index(ingredient), 1)
@@ -71,7 +76,6 @@ def parse_input(filename):
         y = np.array(y_rows).squeeze()
 
 
-
-        return (classes, ingredients, X, y)
+        return (classes, ingredients, X, y,y_cuisine,all_classes)
              
 
