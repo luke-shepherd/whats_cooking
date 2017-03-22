@@ -79,4 +79,3 @@ def parse_input(filename):
         return (all_classes, ingredients, X, y)
              
 
-(classes, ingredients, X, y) = parse_input('train.json')
