@@ -45,12 +45,12 @@ def parse_input(filename):
                     all_ingredients.append(ingredient)
         
         # create class column vector
-        all_classes = np.array(all_classes)
-        all_classes = np.resize(all_classes, (all_classes.size, 1))
+        classes = np.array(all_classes)
+        classes = np.resize(classes, (classes.size, 1))
         
         
-        print 'There are ', all_classes.shape, ' classes\n' 
-        print all_classes
+        print 'There are ', classes.shape, ' classes\n' 
+        print classes
 
         ingredients = np.array(all_ingredients)
         ingredients = np.resize(ingredients, (ingredients.size, 1))
@@ -69,11 +69,13 @@ def parse_input(filename):
         for training_example in data:
             ing = training_example['ingredients']
             f_vec = np.zeros((1, NUM_ING))
+            y_vec = np.zeros((1, classes.size))
+
             for ingredient in ing:
                 np.put(f_vec, all_ingredients.index(ingredient), 1)
             train_rows.append(f_vec)
-
-            y_rows.append(training_example['cuisine'])
+            np.put(y_vec, all_classes.index(training_example['cuisine']), 1)
+            y_rows.append(y_vec)
 
         X = np.array(train_rows)
         y = np.array(y_rows)
@@ -81,8 +83,10 @@ def parse_input(filename):
         print 'X: all training examples'
         print X
 
+        print 'y'
+        print y
 
-        return (all_classes, ingredients, X, y)
+
+        return (classes, ingredients, X, y)
              
 
-# (classes, ingredients, X, y) = parse_input('train.json')
