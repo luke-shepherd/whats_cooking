@@ -2,6 +2,10 @@ import json
 from pprint import pprint
 from sets import Set
 import numpy as np
+import random
+
+RATIO = 0.75
+
 
 # method to parse data from json file
 def parse_input(filename):
@@ -63,11 +67,11 @@ def parse_input(filename):
         X = np.array(train_rows)
         y = np.array(y_rows)
 
-        print 'X'
+        print 'X: all training examples'
         print X
+
 
         return (all_classes, ingredients, X, y)
              
 
-(classes, ingredients, X_train, y_train) = parse_input('train.json')
-
+(classes, ingredients, X, y) = parse_input('train.json')
