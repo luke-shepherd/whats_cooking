@@ -24,7 +24,7 @@ from __future__ import print_function
 import argparse
 import sys
 import numpy as np
-import dataParser as data
+import dataParser as dataParser
 import tensorflow as tf
 import neuralNet as nn
 
@@ -32,27 +32,23 @@ FLAGS = None
 
 def main(_):
   # Define loss and optimizer
-  classes, ingredients, X, y = data.parse_input("train.json")
+  classes, ingredients, X, y = dataParser.parse_input("train.json")
   trainDataset = X, y
   with tf.Graph().as_default():
-    #Initialize the dimensions
-    x_col, x_row = X.get_shape()
-    inputDimension = x_col * x_row
-    #predictive model (Neural Net)
-    y_hat = nn.hypothesis(X,inputDimension,FLAGS.hidden1,FLAGS.hidden2,FLAGS.hidden3)
-    #Cost and optimization
+    # Predictive model (Neural Net)
+    inputX = tf.Variable(X, tf.float32)
+    y_hat = nn.y_hat(inputX, FLAGS.hidden1, FLAGS.hidden2, FLAGS.hidden3)
+    # Cost and optimization
     loss = nn.loss(y_hat, y)  
     train_step = nn.training(loss, FLAGS.learning_rate)
-    #Session
+    # Session
     sess = tf.InteractiveSession()
     tf.global_variables_initializer().run()
-
     # Train
     for _ in range(FLAGS.max_steps):
       indices = np.random.choice(data_size, batch_size)
       batch_xs, batch_ys = X_data[indices], y_data[indices]
       sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
-
     # Test trained model
     correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))

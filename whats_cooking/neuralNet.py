@@ -21,12 +21,15 @@ import tensorflow as tf
 
 NUM_CLASSES = 20
 
-def hypothesis(inputX, inputDimension, hidden1_units, hidden2_units, hidden3_units):
+IMAGE_SIZE = 28
+IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
+
+def y_hat(inputX, hidden1_units, hidden2_units, hidden3_units):
   # Hidden 1
   with tf.name_scope('hidden1'):
     weights = tf.Variable(
-        tf.truncated_normal([inputDimension, hidden1_units],
-                            stddev=1.0 / math.sqrt(float(inputDimension))),
+        tf.truncated_normal([IMAGE_PIXELS, hidden1_units],
+                            stddev=1.0 / math.sqrt(float(IMAGE_PIXELS))),
         name='weights')
     biases = tf.Variable(tf.zeros([hidden1_units]),
                          name='biases')
