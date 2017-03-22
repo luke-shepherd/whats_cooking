@@ -7,6 +7,17 @@ import random
 RATIO = 0.75
 
 
+# split data into training and testing data
+def split_data(X,y):
+
+   # create data matrix
+   # add classes to first column of matrix
+   # add examples to rest of columns
+   data = np.zeros((X.shape[0],X.shape[2] +1))
+   data[:, :-1 ] = y
+   data[:,:1] = X
+   print data
+
 # method to parse data from json file
 def parse_input(filename):
     with open(filename) as data_file:  
@@ -74,4 +85,4 @@ def parse_input(filename):
         return (all_classes, ingredients, X, y)
              
 
-(classes, ingredients, X, y) = parse_input('train.json')
+# (classes, ingredients, X, y) = parse_input('train.json')
