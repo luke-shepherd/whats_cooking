@@ -3,33 +3,31 @@ from pprint import pprint
 from sets import Set
 import numpy as np
 
-
+# method to parse data from json file
 def parse_input(filename):
     with open(filename) as data_file:  
 
         data = json.load(data_file)
-        #print('First data point')
-        #pprint(data[0])
 
-        #print('\nSecond point')
-        #pprint(data[1])
-
-        #print('\nsecond cuisine')
-        
-        #print(data[1]['cuisine'])
-
-        all_classes = []
-        all_ingredients = []
-        ing_indexes = {}
-        curr_index = 0
+	# data structures
+        all_classes = [] # target values
+        all_ingredients = [] # all features
+        ing_indexes = {} # maintain column index of features
+        curr_index = 1 # counter for feature columne indices
         NUM_EXAMPLES = len(data)
+
+	# iterate over the cuisines
+	# add cuisine to list if not seen yet
         for i in range(0, NUM_EXAMPLES):
             cuisine = data[i]['cuisine']
             if cuisine not in all_classes:
                 all_classes.append(cuisine)
 
+	    # grab all the ingredients from json file
+ 	    # for cuisine
             ingredients = data[i]['ingredients']
             for ingredient in ingredients:
+		# add new ingredient to list
                 if ingredient not in all_ingredients:
                     all_ingredients.append(ingredient)
                     ing_indexes[ingredient] = curr_index
