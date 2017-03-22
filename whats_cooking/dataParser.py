@@ -9,7 +9,6 @@ RATIO = 0.75
 
 # split data into training and testing data
 def split_data(X,y):
-
    # create data matrix
    # add classes to first column of matrix
    # add examples to rest of columns
@@ -52,7 +51,6 @@ def parse_input(filename):
 
         ingredients = np.array(all_ingredients)
         ingredients = np.resize(ingredients, (ingredients.size, 1))
-
         
         NUM_ING = ingredients.size
         train_rows = []
