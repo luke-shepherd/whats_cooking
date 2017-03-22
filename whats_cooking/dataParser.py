@@ -36,19 +36,9 @@ def parse_input(filename):
         # create class column vector
         classes = np.array(all_classes)
         classes = np.resize(classes, (classes.size, 1))
-        
-        
-        print 'There are ', classes.shape, ' classes\n' 
-        print classes
 
         ingredients = np.array(all_ingredients)
         ingredients = np.resize(ingredients, (ingredients.size, 1))
-        print 'There are ', ingredients.size, ' different ingredients\n'
-        print ingredients
-
-
-        print '\n Dims of ingredients'
-        print ingredients.shape
 
         
         NUM_ING = ingredients.size
@@ -69,11 +59,6 @@ def parse_input(filename):
         X = np.array(train_rows)
         y = np.array(y_rows)
 
-        print 'X: all training examples'
-        print X
-
-        print 'y'
-        print y
 
 
         return (all_classes, ingredients, X, y)
