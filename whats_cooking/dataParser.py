@@ -73,7 +73,8 @@ def parse_input(filename):
         X = np.array(train_rows).squeeze()
         y = np.array(y_rows).squeeze()
 
-
+	# return tuple of: class array, ingredients array, example array
+	# 'hot-vector' array, list of target cuisines, list of all cuisines
         return (classes, ingredients, X, y,y_cuisine,all_classes)
              
 
