@@ -6,6 +6,8 @@ from dataParser import parse_input
 
 def getLoss(w,x,y,lam):
     m = x.shape[0] #First we get the number of training examples
+    
+    
     scores = np.dot(x,w) #Then we compute raw class scores given our input and current weights
     prob = softmax(scores) #Next we perform a softmax on these scores to get their probabilities
     loss = (-1 / m) * np.sum(y * np.log(prob)) + (lam/2)*np.sum(w*w) #We then find the loss of the probabilities
@@ -26,8 +28,9 @@ def getProbsAndPreds(someX):
 
 
 (all_classes, ingredients, X, y) = parse_input('train.json')
+print 'Loaded inputs'
 
-w = np.zeros([X.shape[1],len(np.unique(y))])
+w = np.zeros([X.shape[1], y.shape[1])
 lam = 1
 iterations = 1000
 learningRate = 1e-5

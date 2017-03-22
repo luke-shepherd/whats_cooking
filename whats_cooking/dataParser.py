@@ -56,8 +56,8 @@ def parse_input(filename):
             np.put(y_vec, all_classes.index(training_example['cuisine']), 1)
             y_rows.append(y_vec)
 
-        X = np.array(train_rows)
-        y = np.array(y_rows)
+        X = np.array(train_rows).squeeze()
+        y = np.array(y_rows).squeeze()
 
 
 
