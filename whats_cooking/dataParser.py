@@ -17,6 +17,30 @@ def split_data(X,y):
    data[:,:1] = X
    print data
 
+
+
+def split_training_data(X, y, all_classes, y_cuisine, ratio):
+    X_tr = []
+    X_te = []
+    y_tr = []
+    y_te = []
+    y_tr_labels = []
+    y_te_labels = []
+    for i in range(0, X.shape[0]):
+        r = random.random()
+        if r < ratio:
+            X_tr.append(X[i, :])
+            y_tr.append(y[i, :])
+            y_tr_labels.append(all_classes.index(y_cuisine[i]))
+        else:
+            X_te.append(X[i, :])
+            y_te.append(y[i, :])
+            y_te_labels.append(all_classes.index(y_cuisine[i]))
+
+    return (np.array(X_tr), np.array(X_te), np.array(y_tr), np.array(y_te), y_tr_labels, y_te_labels)
+
+
+
 # method to parse data from json file
 def parse_input(filename):
     with open(filename) as data_file:  

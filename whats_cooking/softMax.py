@@ -1,5 +1,6 @@
 import numpy as np
 from dataParser import parse_input
+from dataParser import split_training_data
 import random
 # most of this code is written by Arthur Juliani
 # https://medium.com/@awjuliani/simple-softmax-in-python-tutorial-d6b4c4ed5c16#.xpni65dgy
@@ -34,49 +35,43 @@ def getAccuracy(someX,someY, w):
 
 
 print 'Fetching inputs...'
-(all_classes, ingredients, X, y) = parse_input('train.json')
+(classes, ingredients, X, y, y_cuisine, all_classes) = parse_input('train.json')
 print 'Loaded inputs'
 
-X_train = []
-X_test = []
-y_train = []
-y_test = []
-for i in range(0, X.shape[0]):
-    r = random.random()
-    if r < .75:
-        X_train.append(X[i, :])
-        y_train.append(y[i, :])
-    else:
-        X_test.append(X[i, :])
-        y_test.append(y[i, :])
+X = np.insert(X, 0, 1, axis=1)
 
-X_train = np.array(X_train)
-X_test = np.array(X_test)
-y_train = np.array(y_train)
-y_test = np.array(y_test)
+print 'Splitting data into train and test sets...'
+(X_train, X_test, y_train, y_test, y_tr_labels, y_te_labels) = split_training_data(X, y, all_classes, y_cuisine, .75)
 
-print 'split data'
+te, n = X_train.shape
+num_classes = y_train.shape[1]
 
-print 'train loop'
-w = np.zeros([X_train.shape[1], y_train.shape[1]])
+
+print 'te: ', te
+print 'n: ', n
+print 'num_classes: ', num_classes
+
+print '\nTraining loop'
+
+w = np.zeros([n, num_classes])
 lam = 1
-iterations = 1000
-learningRate = .002
-losses = []
+iterations = 80000
+learningRate = 1e-5
+batch_size = 100
 for i in range(0,iterations):
-    loss,grad = getLoss(w,X_train,y_train,lam)
-    print 'loss at iteration ',i,': ',loss     
-    losses.append(loss)
-    w = w - (learningRate * grad)
+	X_batch= []
+	y_batch = []
+	for exnum in np.random.randint(0, high=X_train.shape[0], size=batch_size):
+		X_batch.append(X_train[exnum, :])
+		y_batch.append(y_train[exnum, :])
+
+	Xin = np.array(X_batch)
+	yin = np.array(y_batch)
+
+   	loss,grad = getLoss(w,Xin,yin,lam)
+   	if i%50 == 0: print 'loss at iteration ',i,': ',loss     
+	w = w - (learningRate * grad)
 
 
-y_train_labels = []
-y_test_labels = []
-print 'formatting y'
-for row in y_train:
-    x,y = np.where(y_train==1)
-    y_train_labels.append(y[0])
-    
-    
-print 'Training error: ', getAccuracy(X_train, y_train_labels, w)
-#print 'Testing error: ', getAccuracy(X_test, y_test, w)
+print 'Training error: ', getAccuracy(X_train, y_tr_labels, w)
+print 'Testing error: ', getAccuracy(X_test, y_te_labels, w)
