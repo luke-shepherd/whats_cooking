@@ -73,8 +73,88 @@ def parse_input(filename):
         X = np.array(train_rows).squeeze()
         y = np.array(y_rows).squeeze()
 
+
 	# return tuple of: class array, ingredients array, example array
 	# 'hot-vector' array, list of target cuisines, list of all cuisines
         return (classes, ingredients, X, y,y_cuisine,all_classes)
              
+def convert_weka(filename):
+    with open(filename) as data_file:  
+
+        print "Load in the data..."
+        data = json.load(data_file)
+
+        # data structures
+        all_classes = [] # target values
+        all_ingredients = [] # all features
+        NUM_EXAMPLES = len(data)
+
+        print "Discover cuisines and ingredients..."
+        for i in range(0, NUM_EXAMPLES):
+            cuisine = data[i]['cuisine']
+            if cuisine not in all_classes:
+                all_classes.append(cuisine)
+
+        # grab all the ingredients from json file
+        # for cuisine
+            ingredients = data[i]['ingredients']
+            for ingredient in ingredients:
+        # add new ingredient to list
+                if ingredient not in all_ingredients:
+                    all_ingredients.append(ingredient)
+
+        
+        print 'creating json...'
+        all_attr = []
+        NUM_INGREDIENTS = len(all_ingredients)
+        dataList = []
+        example_counter = 0
+        for example in data:
+            if example_counter % 100 == 0: print example_counter
+            example_counter += 1
+            curr_ingredients = example['ingredients']
+            cd = {}
+            attr = {}
+
+            cd["weight"] = 1
+            cd["sparse"] = False
+      
+            attr['name'] = 'R' + str(i)
+            attr['type'] = 'numeric'
+            attr['class'] = False
+            attr['weight'] = 1.0
+
+            values = []
+            for i in range(0, NUM_INGREDIENTS):
+                if all_ingredients[i] in curr_ingredients:
+                    values.append('1')
+                else: 
+                    values.append('0')
+
+            exclass = all_classes.index(example['cuisine'])
+            values.append(str(exclass))
+            cd['values'] = values
+            dataList.append(cd)
+
+
+        class_attr = {}
+        class_attr['name'] = 'Class'
+        class_attr['type'] = 'nominal'
+        class_attr['class'] = True
+        class_attr['weight'] = 1.0
+        class_attr['labels'] = ['1', '2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20']
+        all_attr.append(class_attr)
+
+        out = {}
+        header = {}
+        header['relation'] = 'Foods'
+        header['attributes'] = all_attr
+        header['data'] = dataList
+        out['header'] = header
+
+        print 'writing...' 
+        with open('trainWeka.json', 'w') as json_weka:
+            json_weka.write(json.dumps(out))
+
+
 
