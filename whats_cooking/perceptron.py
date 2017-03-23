@@ -4,6 +4,11 @@
 
 import dataParser
 import numpy as np
+import sys
+import pdb
+
+ITERATIONS = 1
+
 
 # classification
 # take a test matrix, trained weights and classify results
@@ -14,24 +19,26 @@ def classify(X_test,W,all_classes):
 	highest result. use index of this weight value to index cuisine
 	from y_cuisine
 	"""
+	# insert a bias column into training examples
+	X_test = np.insert( X_test, 0,1, 1)
 
 	print "Now we classifying..."
 	classifications = []
 	for i in range(0,X_test.shape[0]):
 
-		w_predictor = W[0,:]
-		w_index 	= 0
-		result 		= np.dot(w_predictor, np.transpose(W[0,:]))
+		example 	= X_test[i,:] # ith row-example of feature matrix
+		w_predictor = W[0,:] # initialize the weight we think will yield highest value
+		w_index 	= 0 	 # maintain its index
+		result 		= 0 # calc result of weight and example
 		y_hat 		= all_classes[0] # initialize our prediction
-		index 		= 0 		   # index for wrong weights
 
-		for j in range(1,W.shape[0]):
-			tmp_result = np.dot(w_predictor, np.transpose(W[0,:]))
-			if tmp_result > result:
+		for j in range(0,W.shape[0]):
+			tmp_result = np.dot(w_predictor, np.transpose(example))
+			if tmp_result >= result:
 				result = tmp_result
 				w_predictor = W[j,:]
 				y_hat = all_classes[j]
-		classifications.append(y_hat)
+			classifications.append(y_hat)
 	return np.array(classifications)
 
 
@@ -40,14 +47,15 @@ def classify(X_test,W,all_classes):
 def compute_accuracy(targets, predictors):
 	print "Compute that accuracy..."
 	correct = 0
-	for i in range(0,targets.shape[0]):
+	for i in range(0,len(targets)):
 		print targets[i], predictors[i]
 		if targets[i] == predictors[i]:
 			correct += 1
 	print correct
-	total = targets.shape[0]
+	total = len(targets)
+	print total
 
-	return correct/total
+	return float(correct)/float(total)
 	
 
 
@@ -74,45 +82,50 @@ def train_perceptron(classes, X_train, y_train, y_cuisine,all_classes):
 	If the predictor is mislabeled, then we decrement the value of this weight, and increase the value
 	our of target weight
 	""" 
+	n = 1
+	for k in xrange(ITERATIONS):
+		if True:
+			print "Training Iteration: ", k
+		for j in range(0,X_train.shape[0]):
 
-	for j in range(0,X_train.shape[0]):
-
-		
-		example 	= X_train[j,:] # get the jth example
-		y_target 	= y_cuisine[j] # cuisine target is jth cuisine
-		w_index 	= all_classes.index(y_target) # index of associated weight vector
-		w_predictor = W[w_index,:] # weight vector
-		result 		= np.dot(w_predictor, np.transpose(example))
-		y_hat 		= y_cuisine[j] # initialize our prediction
-		index 		= j 		   # index for wrong weights
+			example 	= X_train[j,:] # get the jth example
+			y_target 	= y_cuisine[j] # cuisine target is jth cuisine
+			w_index 	= 0 # assume associated weight vector is first one
+			w_predictor = W[w_index,:] # weight vector
+			result 		= 0
+			y_hat 		= y_cuisine[w_index] # initialize our prediction
+			index 		= 0 		   # index for wrong weights
 
 
-		# loop through all weights, to find highest value one
-		for i in range(1, W.shape[0]):
+			# loop through all weights, to find highest value one
+			for i in range(0, W.shape[0]):
 
-			# check for a better result
-			tmp_result = np.dot(W[i,:], np.transpose(example)) 
-			if  tmp_result >= result:
-				result 		= tmp_result
-				w_predictor = W[i,:]
-				y_hat 		= y_cuisine[i]
-				index = i
+				# check for a better result
+				tmp_result = np.dot(W[i,:], example) 
+				if  tmp_result >= result:
+					result 		= tmp_result
+					w_predictor = W[i,:]
+					y_hat 		= y_cuisine[i]
+					index = i
 
-		# check for correction prediction
-		if not np.array_equiv(y_hat, y_target):
-			W[index,:] = W[index,:] - np.transpose(example) # 
-			W[w_index,:] = W[w_index,:] + np.transpose(example) # 
+			# check for correction prediction
+			if y_hat != y_target:
+				#pdb.set_trace()
+				W[index,:] -=example# 
+				W[w_index,:] += example # 
+		k += 1
 
 	return W
 
 
 
 def main():
-	classes, ingredients, X, y, y_cuisine, all_classes = dataParser.parse_input('train.json')
+	if len(sys.argv) <2: quit()
+	classes, ingredients, X, y, y_cuisine, all_classes = dataParser.parse_input(sys.argv[1])
 	W = train_perceptron(classes,X,y, y_cuisine, all_classes)
 
 	predictions = classify(X,W,all_classes)
-	accuracy = compute_accuracy(y,predictions)
+	accuracy = compute_accuracy(y_cuisine,predictions)
 	print "\nThe accuracy of this model is %.4f" % accuracy
 
 if __name__ == '__main__':
