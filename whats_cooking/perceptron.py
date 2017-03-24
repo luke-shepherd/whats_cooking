@@ -6,8 +6,48 @@ import dataParser
 import numpy as np
 import sys
 import pdb
+import random
+from sets import Set
 
-ITERATIONS = 1
+ITERATIONS 		= 100000
+RATIO 			= .1
+BATCH_SIZE		= 100
+LEARNING_RATE	= .01                     
+DIM 			= 2
+
+
+# PCA
+def PCA(X):
+	"""
+	center the data
+	"""
+
+	print "Principal Component Analysis"
+	for i in range(0,X.shape[1]):
+		total = np.sum(X[:,i])
+		average = total / X.shape[0]
+		X[:,i] = np.subtract(X[:,i],average)
+
+	cov_matrix = np.matmul(np.transpose(X),X)
+
+	# get eigen values/vectors
+	e_vals, e_vecs = np.linalg.eig(cov_matrix)
+	U_reduced = np.zeros((e_vecs.shape[0],DIM))
+	best_vals = np.argsort(e_vals)
+
+
+	for i in range(0,DIM):
+		eval_index = best_vals[i]
+		U_reduced[:,i] = np.add(U_reduced[:,i],e_vecs[:,eval_index])
+
+	phi = np.matmul(X,U_reduced)
+
+	new_X = np.matmul(phi,np.transpose(U_reduced))
+
+	return new_X
+
+
+
 
 
 # classification
@@ -47,21 +87,22 @@ def classify(X_test,W,all_classes):
 def compute_accuracy(targets, predictors):
 	print "Compute that accuracy..."
 	correct = 0
+	output = open("results.txt",'a')
 	for i in range(0,len(targets)):
-		print targets[i], predictors[i]
+		##print targets[i], predictors[i]
+		output.write("targets: %s 	predictor: %s" % (targets[i],predictors[i]))
 		if targets[i] == predictors[i]:
 			correct += 1
-	print correct
 	total = len(targets)
-	print total
+	output.close()
 
-	return float(correct)/float(total)
+	return correct, total
 	
 
 
 
 # main training method
-def train_perceptron(classes, X_train, y_train, y_cuisine,all_classes):
+def train_perceptron(classes, X_train, y_cuisine,all_classes):
 	print "Train that perceptron..."
 
     # insert a bias column into training examples
@@ -84,17 +125,18 @@ def train_perceptron(classes, X_train, y_train, y_cuisine,all_classes):
 	""" 
 	n = 1
 	for k in xrange(ITERATIONS):
-		if True:
+		if (k % 1000 == 0):
 			print "Training Iteration: ", k
-		for j in range(0,X_train.shape[0]):
+
+		batch_indicies = random.sample(xrange(X_train.shape[0]),BATCH_SIZE) # list of indices to train on
+		for j in batch_indicies:
 
 			example 	= X_train[j,:] # get the jth example
 			y_target 	= y_cuisine[j] # cuisine target is jth cuisine
-			w_index 	= 0 # assume associated weight vector is first one
-			w_predictor = W[w_index,:] # weight vector
+			w_index 	= all_classes.index(y_target) # weight vector that should return highest value
 			result 		= 0
-			y_hat 		= y_cuisine[w_index] # initialize our prediction
-			index 		= 0 		   # index for wrong weights
+			y_hat 		= all_classes[w_index] # initialize our prediction
+			index 		= 0 		   # index highest valued weight result
 
 
 			# loop through all weights, to find highest value one
@@ -104,15 +146,14 @@ def train_perceptron(classes, X_train, y_train, y_cuisine,all_classes):
 				tmp_result = np.dot(W[i,:], example) 
 				if  tmp_result >= result:
 					result 		= tmp_result
-					w_predictor = W[i,:]
-					y_hat 		= y_cuisine[i]
+					y_hat 		= all_classes[i]
 					index = i
 
 			# check for correction prediction
 			if y_hat != y_target:
 				#pdb.set_trace()
-				W[index,:] -=example# 
-				W[w_index,:] += example # 
+				W[index,:] -= np.multiply(LEARNING_RATE, example) # 
+				W[w_index,:] += np.multiply(LEARNING_RATE, example) # 
 		k += 1
 
 	return W
@@ -120,13 +161,29 @@ def train_perceptron(classes, X_train, y_train, y_cuisine,all_classes):
 
 
 def main():
+	output = open("traingResults.txt",'a')
+
 	if len(sys.argv) <2: quit()
 	classes, ingredients, X, y, y_cuisine, all_classes = dataParser.parse_input(sys.argv[1])
-	W = train_perceptron(classes,X,y, y_cuisine, all_classes)
+	x_train, y_train = dataParser.split_data(X,y_cuisine,RATIO)
 
-	predictions = classify(X,W,all_classes)
-	accuracy = compute_accuracy(y_cuisine,predictions)
-	print "\nThe accuracy of this model is %.4f" % accuracy
+	# size = x_train.shape[1] # get number of features in x
+	# cols_to_get = random.sample(xrange(size),size/4)
+	# x_train = x_train[:,cols_to_get]
+	#x_train = PCA(x_train)
+
+	W = train_perceptron(classes, x_train,y_cuisine,all_classes)
+
+
+	predictions = classify(x_train,W,all_classes)
+	correct, total = compute_accuracy(y_train,predictions)	
+
+	print "\nITERATIONS : %d\nRATIO : %.2f\nBATCH_SIZE %d\nLEARNING_RATE : %.2f\nDIMENSIONS: %d" % (ITERATIONS,RATIO,BATCH_SIZE,LEARNING_RATE,DIM)
+	print "\nThere were %d correct classifications at of %d" % (correct,total)
+	accuracy = float(correct)/float(total)
+	print "\nThe accuracy of this training model is %.4f" % accuracy
+
+	output.close()
 
 if __name__ == '__main__':
 	main()
