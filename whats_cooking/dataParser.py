@@ -3,19 +3,21 @@ from pprint import pprint
 from sets import Set
 import numpy as np
 import random
-
-RATIO = 0.75
+import pdb
 
 
 # split data into training and testing data
-def split_data(X,y):
+def split_data(X,y, ratio = .75):
    # create data matrix
    # add classes to first column of matrix
    # add examples to rest of columns
-   data = np.zeros((X.shape[0],X.shape[2] +1))
-   data[:, :-1 ] = y
-   data[:,:1] = X
-   print data
+   size = X.shape[0]
+   index_to_split = int(size * ratio)
+   print "Fetch first %d examples in data" % index_to_split   
+   X_train = X[0:index_to_split,:]
+   y_train = y[0:index_to_split]
+
+   return X_train,y_train
 
 
 
@@ -97,9 +99,10 @@ def parse_input(filename):
         X = np.array(train_rows).squeeze()
         y = np.array(y_rows).squeeze()
 
+        print "Classes: %d\nFeatures: %d\nExamples: %d"% (len(all_classes), X.shape[1],X.shape[0])
 
-	# return tuple of: class array, ingredients array, example array
-	# 'hot-vector' array, list of target cuisines, list of all cuisines
+	   # return tuple of: class array, ingredients array, example array
+	   # 'hot-vector' array, list of target cuisines, list of all cuisines
         return (classes, ingredients, X, y,y_cuisine,all_classes)
              
 def convert_weka(filename):
