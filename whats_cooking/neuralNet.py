@@ -42,7 +42,7 @@ def y_hat(inputX, hidden1_units, hidden2_units, hidden3_units):
         name='weights')
     biases = tf.Variable(tf.zeros([hidden2_units]),
                          name='biases')
-    hidden2 = tf.nn.relu(tf.matmul(hidden1, weights) + biases)
+    hidden2 = tf.nn.sigmoid(tf.matmul(hidden1, weights) + biases)
   # Hidden 3
   with tf.name_scope('hidden3'):
     weights = tf.Variable(

@@ -55,7 +55,7 @@ print '\nTraining loop'
 
 w = np.zeros([n, num_classes])
 lam = 1
-iterations = 80000
+iterations = 50000
 learningRate = 1e-5
 batch_size = 100
 for i in range(0,iterations):
@@ -69,7 +69,9 @@ for i in range(0,iterations):
 	yin = np.array(y_batch)
 
    	loss,grad = getLoss(w,Xin,yin,lam)
-   	if i%50 == 0: print 'loss at iteration ',i,': ',loss     
+   	if i%200 == 0: 
+            print 'loss at iteration ',i,'/', iterations, ': ',loss
+            print 'weight vector: ', w
 	w = w - (learningRate * grad)
 
 
