@@ -29,13 +29,14 @@ def accuracy(yhat, y):
 (classes, ingredients, X, y, y_cuisine, all_classes) = dataParser.parse_input('train.json')
 
 # Split the data randomly into training and testing sets
-(X_train, X_test, y_train, y_test, train_labels, test_labels) = split_training_data(X, y, all_classes, y_cuisine, .75)
+(X_train, X_test, y_train, y_test, train_labels, test_labels) = dataParser.split_training_data(X, y, all_classes, y_cuisine, .75)
 
 
 
 ### Decision Tree ####
 
 # Default sklearn decision tree
+print 'Building Decision Tree...'
 tr = sklearn.tree.DecisionTreeClassifier()
 tr.fit(X_train, train_labels)
 
@@ -48,7 +49,8 @@ print 'Decision Tree testing accuracy: ', accuracy(tree_yhat_test, test_labels)
 ### Singer-Crammer SVM ###
 
 # A singer-crammer multiclass SVM is used
-svm_classifier = svm.LinearSVC(multi_class='crammer_singer', verbose=10)
+print 'Buiding Crammer Singer SVM...'
+svm_classifier = sklearn.svm.LinearSVC(multi_class='crammer_singer', verbose=10)
 svm_classifier.fit(X_train, train_labels)
 
 svm_yhat_train = svm_classifier.predict(X_train)
@@ -61,12 +63,15 @@ print 'SingCram SVM testing accuracy: ', accuracy(svm_yhat_test, test_labels)
 ### KNN - N = 3 ###
 
 # Distance is calculated as manhattan distance
+print 'Preparing KNN...'
 knn = sklearn.neighbors.KNeighborsClassifier(p=1, n_neighbors=3)
+knn.fit(X_train, train_labels)
 knn_yhat_test = knn.predict(X_test)
 
 print 'KNN accuracy: ', accuracy(test_labels, knn_yhat_test)
 
 ### Naive Bayes ###
+print 'Building Naive Bayes Net...'
 nb = sklearn.naive_bayes.BernoulliNB()
 nb.fit(X_train, train_labels)
 
@@ -79,6 +84,7 @@ print 'Naive Bayes testing accuracy: ', accuracy(nb_yhat_test, test_labels)
 ### SAG Logistic Regression ###
 
 # use a very small iteration number otherwise it takes a very very long time
+print 'Training Logistic Classifier...'
 log_reg = sklearn.linear_model.LogisticRegression(max_iter=3, multi_class='multinomial', verbose=10, solver='sag')
 log_reg.fit(X_train, train_labels)
 
@@ -89,6 +95,7 @@ print 'Logistic Regression training accuracy: ', accuracy(log_yhat_train, train_
 print 'Logistic Regression testing accuracy: ', accuracy(log_yhat_test, test_labels)
 
 ### MLP 100 hidden layers ###
+print 'Training MLP...'
 percept = sklearn.neural_network.MLPClassifier(tol=.1, solver='sgd', early_stopping=True, activation='tanh', alpha=0, 
                                                 learning_rate='adaptive', max_iter=1000, warm_start=True)
 
