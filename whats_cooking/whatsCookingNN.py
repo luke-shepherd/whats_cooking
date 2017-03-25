@@ -20,6 +20,7 @@ http://tensorflow.org/tutorials/mnist/beginners/index.md
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from numpy import arange
 
 import argparse
 import sys
@@ -32,33 +33,48 @@ FLAGS = None
 
 def main(_):
   # Define loss and optimizer
-  classes, ingredients, X, y = dataParser.parse_input("train.json")
-  trainDataset = X, y
+  (classes, ingredients, X, y, y_cuisine, all_classes) = dataParser.parse_input('train.json')
+  # dataset = dataParser.parse_input('train.json')
   with tf.Graph().as_default():
     # Predictive model (Neural Net)
-    inputX = tf.Variable(X, tf.float32)
+    # inputX = tf.placeholder(tf.float32, [None, nn.FEATURES])
+    inputX = tf.placeholder(tf.float32, shape=(FLAGS.batch_size, nn.FEATURES))
+    # outputY = tf.placeholder(tf.float32, [None, FLAGS.multi_Classes])
+    outputY = tf.placeholder(tf.int32, shape=(FLAGS.batch_size, FLAGS.multi_Classes))
+
+    # Predictive model
     y_hat = nn.y_hat(inputX, FLAGS.hidden1, FLAGS.hidden2, FLAGS.hidden3)
+
     # Cost and optimization
-    loss = nn.loss(y_hat, y)  
+    loss = nn.loss(y_hat, outputY)  
     train_step = nn.training(loss, FLAGS.learning_rate)
+
+    # labels = tf.cast(X, tf.float32)
+    # print(X.shape[0])
+
     # Session
-    sess = tf.InteractiveSession()
+    sess = tf.InteractiveSession() 
     tf.global_variables_initializer().run()
+
     # Train
-    for _ in range(FLAGS.max_steps):
-      indices = np.random.choice(data_size, batch_size)
-      batch_xs, batch_ys = X_data[indices], y_data[indices]
-      sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+    for _ in range(1, 100):
+      indices = np.random.choice(X.shape[0], 50)[0]
+      x_cast = tf.cast(X, tf.float32)
+      y_cuisine_cast = tf.cast(y_cuisine, tf.float32)
+      (batch_xs, batch_ys) = x_cast[indices:], y_cuisine_cast[indices:]
+      batch_xs_cast = tf.cast(batch_xs, tf.float32)
+      batch_ys_cast = tf.cast(batch_ys, tf.float32)
+      if len < 0:
+        sess.run(train_step, feed_dict={np.ndarray(X): np.ndarray(batch_xs_cast), np.ndarray(y_cuisine): np.ndarray(batch_ys_cast)})
+
     # Test trained model
-    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+    correct_prediction = tf.equal(tf.argmax(y_hat, 1), tf.argmax(outputY, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    print(sess.run(accuracy, feed_dict={x: X,
-                                        y_: y}))
+    print(sess.run(accuracy, feed_dict={inputX: X,
+                                        outputY: y_cuisine}))
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--data_dir', type=str, default='/tmp/tensorflow/mnist/input_data',
-                      help='Directory for storing input data')
   parser.add_argument(
       '--hidden1',
       type=int,
@@ -79,7 +95,7 @@ if __name__ == '__main__':
   )
   parser.add_argument(
       '--learning_rate',
-      type=float,
+      type=int,
       default=0.4,
       help='Initial learning rate.'
   )
@@ -90,9 +106,15 @@ if __name__ == '__main__':
       help='Number of steps to run trainer.'
   )
   parser.add_argument(
+      '--multi_Classes',
+      type=int,
+      default=20,
+      help='Number of steps to run trainer.'
+  )
+  parser.add_argument(
       '--batch_size',
       type=int,
-      default=100,
+      default=39774,
       help='Batch size.  Must divide evenly into the dataset sizes.'
   )
   parser.add_argument(
@@ -100,12 +122,6 @@ if __name__ == '__main__':
       type=int,
       default=1000,
       help='data size needs help.'
-  )
-  parser.add_argument(
-      '--fake_data',
-      default=False,
-      help='If true, uses fake data for unit testing.',
-      action='store_true'
   )
   FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)

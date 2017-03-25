@@ -157,12 +157,10 @@ def convert_weka(filename):
                     values.append('1')
                 else: 
                     values.append('0')
-
             exclass = all_classes.index(example['cuisine'])
             values.append(str(exclass))
             cd['values'] = values
             dataList.append(cd)
-
 
         class_attr = {}
         class_attr['name'] = 'Class'
@@ -182,6 +180,3 @@ def convert_weka(filename):
         print 'writing...' 
         with open('trainWeka.json', 'w') as json_weka:
             json_weka.write(json.dumps(out))
-
-
-

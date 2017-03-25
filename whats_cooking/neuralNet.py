@@ -21,16 +21,13 @@ import tensorflow as tf
 
 NUM_CLASSES = 20
 
-IMAGE_SIZE = 28
-IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
+FEATURES = 6714
 
 def y_hat(inputX, hidden1_units, hidden2_units, hidden3_units):
   # Hidden 1
   with tf.name_scope('hidden1'):
-    weights = tf.Variable(
-        tf.truncated_normal([IMAGE_PIXELS, hidden1_units],
-                            stddev=1.0 / math.sqrt(float(IMAGE_PIXELS))),
-        name='weights')
+    weights = tf.Variable(tf.truncated_normal([FEATURES, hidden1_units], stddev=1.0 / math.sqrt(float(FEATURES))),name='weights')
+
     biases = tf.Variable(tf.zeros([hidden1_units]),
                          name='biases')
     hidden1 = tf.nn.relu(tf.matmul(inputX, weights) + biases)
@@ -42,7 +39,7 @@ def y_hat(inputX, hidden1_units, hidden2_units, hidden3_units):
         name='weights')
     biases = tf.Variable(tf.zeros([hidden2_units]),
                          name='biases')
-    hidden2 = tf.nn.sigmoid(tf.matmul(hidden1, weights) + biases)
+    hidden2 = tf.nn.relu(tf.matmul(hidden1, weights) + biases)
   # Hidden 3
   with tf.name_scope('hidden3'):
     weights = tf.Variable(
@@ -63,12 +60,11 @@ def y_hat(inputX, hidden1_units, hidden2_units, hidden3_units):
     logits = tf.matmul(hidden3, weights) + biases
   return logits
 
-
-def loss(logits, labels):
-  labels = tf.to_int64(labels)
-  cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-      labels=labels, logits=logits, name='xentropy')
-  return tf.reduce_mean(cross_entropy, name='xentropy_mean')
+# loss = nn.loss(y_hat, outputY)  
+def loss(logits, labels):  
+  labels = tf.cast(labels, tf.float32)
+  cross_entropy = -tf.reduce_sum(logits*tf.log(labels), name='xentropy')
+  return cross_entropy
 
 
 def training(loss, learning_rate):
